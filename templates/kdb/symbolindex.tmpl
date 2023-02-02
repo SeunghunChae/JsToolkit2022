@@ -1,0 +1,248 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+	<head>
+		<meta http-equiv="content-type" content="text/html; charset={+IO.encoding+}" />
+		
+		<title>JsDoc Reference - Index</title>
+		<meta name="generator" content="JsDoc Toolkit"/>
+		
+        <link rel="stylesheet" href="static/{+JSDOC.opt.D.cssFile+}" type="text/css" media="screen" charset="utf-8" />
+
+        <style>
+            #symbolFilter {
+                margin-top: 2em;
+                margin-bottom: 1em;
+            }
+
+            .hidden {
+                visibility: hidden;
+                display: none;
+            }
+        </style>
+
+        <script>
+            var overview, filterField, btnSort, selected;
+			var value=[];
+
+            function filterOverview() {
+                var i, name,
+                    regex = filterField.value ? ('^(' + filterField.value + ')') : '.*';
+				/* 정규표현식 => /패턴/ => tr 각 항목을 정규표현식을 활용하여 포함여부 체크 후 hidden 클래스로 바꿈
+				ex) 입력값 : _gf > ^(_gf)
+				1. ^x : 시작문자 x
+				2. . : 하나의문자
+				3. x* : x반복 ex) va* : vaaaaaaa(반복)
+				4. x$ : 종료문자 x
+				5. [a-z] : a~z중 하나 [a-f], [A-Za-z]도 가능
+				6. [^xyz] : x, y, z 외 하나의 문자
+				7. [^a-z] : a~z외 하나의 문자
+				8. {3} : 3회 반복
+				*/
+
+				/* RegExp flags 
+				g : 문자열 전체확인
+				i : 대소문자 구분 x
+				m : 문자열 중 ^, $에서 개행허용
+				s : .에서 개행 허용
+				y : 마지막부터 일치하는 문자반환
+				u : 유니코드 포인트의 시퀀스로 처리
+				*/
+                regex = new RegExp(regex, 'i');
+                for (i = 0; i < lst.length; i++) {
+                    name = lst[i].getElementsByTagName('td')[0].innerHTML;
+                    if (regex.test(name)) {
+                        lst[i].className = 'symbolEntry';
+                    } else {
+                        lst[i].className = 'symbolEntry hidden';
+                    }
+                }
+            }
+			
+			function changeBgColor(selected,array){
+				for(i=0;i<array.length;i++){
+					if(i%2==0) array[i].style.background="rgba(0,0,0,0.05)";
+					else array[i].style.background="";
+					//seq modify
+					array[i].children[1].textContent=i+1;
+				}
+			}
+			
+			function functionSortView(event){
+				tempAry=[];
+				selected=event.target.getAttribute('value');
+				for (i = 1; i < lst.length; i++) {
+                    name = lst[i].getElementsByTagName('td')[4].innerHTML;
+					if(selected!="전체"){
+						if (name==selected) {
+							lst[i].className = 'symbolEntry';
+							tempAry.push(lst[i]);
+						} else {
+							lst[i].className = 'symbolEntry hidden';
+						}
+					}else{
+						tempAry.push(lst[i]);
+						lst[i].className = 'symbolEntry';
+					}
+                }
+				changeBgColor(selected,tempAry);
+			}
+
+            var init = function() {
+                overview = window.document.getElementById('symbolOverview');
+                filterField = window.document.getElementById('symbolFilter');
+				lst=overview.getElementsByTagName('tr');
+
+                filterField.addEventListener('change', filterOverview, false);
+                filterOverview();
+													
+				/*
+				//_gc와 Date를 제거
+				for (var i=1;i<lst.length;i++){
+					if(lst[i].children[2].children[0].text=="_gc" || lst[i].children[2].children[0].text=="Date")
+						lst[i].remove();
+				}
+				*/
+				
+				//append ex child
+				btnSort=window.document.getElementById('btnSort');
+				for (var i=1;i<lst.length;i++){
+					if(lst[i].getElementsByTagName('td')[4].innerHTML.trim()=="")
+						lst[i].children[4].textContent=="없음";
+					value.push(lst[i].getElementsByTagName('td')[4].innerHTML.trim());
+				}				
+					
+				value.push('전체');
+				const set=new Set(value.sort());
+				value=Array.from(set)
+				
+				//분류버튼 기능 구현
+				for(i=0;i<value.length;i++){
+					var temp=document.createElement('li');
+					selected=value[i];
+					temp.innerHTML ='<a href="#"'+'id="'+value[i]+'" value="'+value[i].trim()+'">'+value[i]+'</a>';
+					temp.addEventListener('click', function(){functionSortView(event)});
+					btnSort.appendChild(temp);
+				}
+				
+				
+				var temp= overview.getElementsByTagName('tr');
+				for(i=0;i<temp.length;i++){
+					if(i%2==1) temp[i].style.background="rgba(0,0,0,0.05)";
+					if(i!=0) temp[i].children[1].textContent=i;
+				}
+				
+
+                delete init;
+            }
+			
+			
+			//분류 기능 생성
+			
+        </script>
+		
+		<!-- pub:메뉴리스트 토글(아코디언) -->
+		<script src="static/jquery-1.12.4.min.js"></script>
+		<script>		
+			$(document).ready(function(){
+				$('#index > h2').eq(0).addClass('active');
+				$('#index > ul.classList').eq(0).css('display','block');
+				$('#index > h2').click(function(){
+					$(this).toggleClass('active').next('.classList').slideToggle();
+				});
+			});
+		</script>
+	
+	</head>
+	
+	<body onload="init()">
+		{+include("header.html")+}
+		
+		<!--기존 메뉴 리스트 삭제
+		<div id="index">
+            <div id="docs">
+                {+publish.docsIndex+}
+            </div>
+			{+publish.classesIndex+}
+		</div>
+		-->
+		
+		<!--// pub:메뉴리스트 -->
+		<div id="index">
+            <div id="docs" class="area_logo">
+                <span>
+					<img src="static/img_logo.png" alt="logo" title="페이지이동">KDB
+				</span>				
+            </div>			
+			{+publish.classesIndex+}			
+			<hr>
+		</div>
+		<!-- pub:메뉴리스트 //-->
+		
+		<div id="content">
+            <h1 id="classTitle">Symbol Index</h1>
+			<span style="margin-left:5px;">src : </span>
+			<!-- 여기서 오류가 날 가능성이 매우 높다 => 함수가 없으면 오류 남 -->
+			<span>{+FilePath.fileName(data[0].src)+}</span>
+			
+            <div>
+                <input id="symbolFilter" type="text" /><br />
+                <table id="symbolOverview" style="border-collapse:collapse;">
+					<colgroup>
+						<col style="width:3%">
+						<col style="width:15%">
+						<col style="width:30%">
+						<col style="width:7%">
+						<col style="width:25%">
+					</colgroup>
+					<thead>
+						<tr>
+							<td>seq</td>
+							<td>함수명</td>
+							<td>함수 설명</td>
+							<td>
+								<div class="dropdown">
+								<a href="#">분류</a>
+								<ul id="btnSort">
+								</ul>
+							</div>
+							</td>
+							<td>사용예시</td>
+						</tr>
+					</thead>
+                  <for each="symbol" in="data">	
+				    <!-- 함수명이 한 개만 들어가게 하는 변수-->
+					{! var test=1 !}
+                    <tr class="symbolEntry">
+					<td hidden="hidden" class="symbolName">{+symbol.name+}</td>
+					  <td class="seq"></td>
+                      <td class="symbolHref">
+                        <for each="entry" in="symbol.symbols">
+						<if test="test">
+						  {!test--!}
+                          {+new Link().toSymbol(entry.alias)+}
+						</if>
+                        </for>
+					  <td class="symbolDesc">{+symbol.desc+}</td>
+					  <td class="symbolType">{+symbol.type+}</td>
+					  <td class="symbolExample">{+symbol.example+}</td>
+                      </td>		
+                    </tr>
+                  </for>
+				  
+                </table>
+            </div>
+            <hr />
+		</div>
+		
+		
+		
+		
+		
+		<div class="fineprint" style="clear:both;text-align:center">
+			<if test="JSDOC.opt.D.copyright">&copy;{+JSDOC.opt.D.copyright+}<br /></if>
+			Documentation generated by <a href="http://code.google.com/p/jsdoc-toolkit/" target="_blankt">JsDoc Toolkit</a> {+JSDOC.VERSION+} on {+new Date()+}
+		</div>
+	</body>
+</html>
+
